@@ -4,6 +4,7 @@ import Colours from '@/components/Colours';
 const CONTAINER_MARGINS = 10;
 const BORDER_WIDTH = 3;
 const BORDER_RADIUS = 15;
+const CONTAINER_PADDING = 5;
 
 export default StyleSheet.create({
 	pageContainer: {
@@ -27,8 +28,20 @@ export default StyleSheet.create({
 		borderColor: Colours.active_border_color,
 		borderRadius: BORDER_RADIUS,
 		margin: CONTAINER_MARGINS,
+		padding: CONTAINER_PADDING,
 	},
 	mainButton: {
-		borderRadius: BORDER_RADIUS,
+		backgroundColor: Colours.active_border_color,
+		borderRadius: 5,
+	},
+	mainButtonText: {
+		marginLeft: "25%",
+		fontSize: 24,
+		color: Colours.black1,
+	},
+	textInput: {
+		borderWidth: 1,
+		borderRadius: 5,
+		borderColor: Colours.white1,
 	}
 });
