@@ -14,6 +14,8 @@ export default StyleSheet.create({
 	},
 	bodyText: {
 		color: Colours.foreground,
+		fontSize: 18,
+		marginLeft: "5%",
 	},
 	calendar: {
 		borderWidth: BORDER_WIDTH,
@@ -33,6 +35,8 @@ export default StyleSheet.create({
 	mainButton: {
 		backgroundColor: Colours.active_border_color,
 		borderRadius: 5,
+		width: "90%",
+		marginLeft: "5%",
 	},
 	mainButtonText: {
 		marginLeft: "25%",
@@ -40,8 +44,13 @@ export default StyleSheet.create({
 		color: Colours.black1,
 	},
 	textInput: {
-		borderWidth: 1,
-		borderRadius: 5,
-		borderColor: Colours.white1,
+		fontSize: 24,
+		color: Colours.foreground,
+		marginLeft: "5%",
+	},
+	listText: {
+		color: Colours.foreground,
+		fontSize: 24,
+		marginLeft: "10%",
 	}
 });

@@ -1,11 +1,9 @@
 // Choose Name, Category, Unilateral?
-import Colours from '@/components/Colours';
 import PageTheme from '@/styles/PageTheme';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import {
   View,
   Text,
-  Button,
   TextInput,
   Switch,
   Pressable,
@@ -25,6 +23,7 @@ export default function CreateExercise() {
   const addExercise = () => {
     getCallback()?.({
       name: name,
+      id: Date.now(),
       unilateral: unilateral
     });
     router.back();
@@ -36,6 +35,7 @@ export default function CreateExercise() {
       <View style={PageTheme.container}>
         <Text style={PageTheme.bodyText}>Exercise Name</Text>
         <TextInput
+          style={PageTheme.textInput}
           onChangeText={setName}
         />
       </View>

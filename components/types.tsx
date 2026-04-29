@@ -1,5 +1,6 @@
 export interface Exercise {
   name: string,
+  id: number,
   unilateral: boolean
 }
 
