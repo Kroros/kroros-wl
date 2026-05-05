@@ -2,22 +2,23 @@ import PageTheme from '@/styles/PageTheme';
 import { router } from 'expo-router';
 import {
   View,
-  ScrollView,
   Text,
   Pressable,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import type { Exercise } from '@/components/types';
-import { useState, useEffect } from "react";
+import type { Exercise, Workout } from '@/components/types';
+import { useState } from "react";
 import { setCallback } from '@/extensions/exerciseCallback';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 import Hr from '@/components/Hr';
+import { Paths, File, Directory } from 'expo-file-system';
+
 
 export default function CreateWorkout() {
   const [ exercises, setExercises ] = useState<Exercise[]>([]);
+  const [ name, setName ] = useState("");
 
   const renderItem = ({ item, drag, isActive }: RenderItemParams<Exercise>) => {
     return (
@@ -34,11 +35,35 @@ export default function CreateWorkout() {
     )
   }
 
+  const addWorkout = async () => {
+    const w: Workout = {
+      name: name,
+      exercises: exercises,
+    }
+    
+    const directory = new Directory(Paths.document, 'data');
+    if (!directory.exists) {
+      directory.create();
+    }
+
+    const file = new File(Paths.document, 'data', 'workouts.json');
+
+    if (!file.exists) {
+      file.create();
+      file.write(JSON.stringify([w]));
+    } else {
+      const existing = JSON.parse(await file.text());
+      existing.push(w);
+      file.write(JSON.stringify(existing));
+    }
+  };
+
   return (
     <GestureHandlerRootView style={PageTheme.pageContainer}>
           <View style={PageTheme.container}> 
             <Text style={PageTheme.bodyText}> Workout Name </Text>
             <TextInput 
+              onChangeText={setName}
               style={PageTheme.textInput}
             />
           </View>
@@ -63,6 +88,7 @@ export default function CreateWorkout() {
 
           <TouchableOpacity
             style={PageTheme.mainButton}
+            onPressOut={addWorkout}
           >
             <Text style={PageTheme.mainButtonText}>Finish Workout</Text>
           </TouchableOpacity>
