@@ -52,5 +52,10 @@ export default StyleSheet.create({
 		color: Colours.foreground,
 		fontSize: 24,
 		marginLeft: "10%",
+	},
+	listSubtext: {
+		color: Colours.inactive_tab_foreground,
+		fontSize: 16,
+		marginLeft: "10%",
 	}
 });

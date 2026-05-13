@@ -7,5 +7,5 @@ export const getCallback = () => callback;
 
 let workoutCallback: ((workout: Workout) => void) | null = null;
 
-export const setWorkoutCallback = (fn: typeof callback) => (callback = fn);
+export const setWorkoutCallback = (fn: typeof workoutCallback) => (workoutCallback = fn);
 export const getWorkoutCallback = () => workoutCallback;

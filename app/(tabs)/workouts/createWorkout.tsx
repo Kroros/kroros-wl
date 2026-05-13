@@ -36,62 +36,71 @@ export default function CreateWorkout() {
   }
 
   const addWorkout = async () => {
-    const w: Workout = {
-      name: name,
-      exercises: exercises,
-    }
-    
-    const directory = new Directory(Paths.document, 'data');
-    if (!directory.exists) {
-      directory.create();
-    }
+    if (exercises.length > 0){
+      const w: Workout = {
+        id: Date.now(),
+        name: name,
+        exercises: exercises,
+      }
 
-    const file = new File(Paths.document, 'data', 'workouts.json');
+      const directory = new Directory(Paths.document, 'data');
+      if (!directory.exists) {
+        directory.create();
+      }
 
-    if (!file.exists) {
-      file.create();
-      file.write(JSON.stringify([w]));
-    } else {
-      const existing = JSON.parse(await file.text());
-      existing.push(w);
-      file.write(JSON.stringify(existing));
+      const file = new File(Paths.document, 'data', 'workouts.json');
+
+      if (!file.exists) {
+        file.create();
+        file.write(JSON.stringify([w]));
+      } else {
+        const existing = JSON.parse(await file.text());
+        existing.push(w);
+        file.write(JSON.stringify(existing));
+      }
     }
+    router.back();
   };
 
   return (
     <GestureHandlerRootView style={PageTheme.pageContainer}>
-          <View style={PageTheme.container}> 
-            <Text style={PageTheme.bodyText}> Workout Name </Text>
-            <TextInput 
-              onChangeText={setName}
-              style={PageTheme.textInput}
-            />
-          </View>
-          
           <DraggableFlatList
             data = {exercises}
             onDragEnd={ ({ data }) => setExercises(data) }
             keyExtractor={(item) => (item.id).toString()}
             renderItem={renderItem}
-          />
+            ListHeaderComponent={
+              <View style={PageTheme.container}> 
+              <Text style={PageTheme.bodyText}> Workout Name </Text>
+              <TextInput 
+                onChangeText={setName}
+                style={PageTheme.textInput}
+              />
+              </View>
+            } 
 
-          <Pressable style={PageTheme.mainButton} onPress={() => {
-            setCallback((exercise) => {
-              setExercises(prev => [...prev, exercise]);
-            });
-            router.push('/workouts/createExercise');
-          }}>
-            <Text style={PageTheme.mainButtonText}> Add Exercise </Text>
-          </Pressable>
+            ListFooterComponent={<>
+              <Pressable style={PageTheme.mainButton} onPress={() => {
+                setCallback((exercise) => {
+                  setExercises(prev => [...prev, exercise]);
+                });
+                router.push('/workouts/createExercise');
+              }}>
+              <Text style={PageTheme.mainButtonText}> Add Exercise </Text>
+              </Pressable>
 
-          <Hr/>
+              <Hr/>
 
-          <TouchableOpacity
-            style={PageTheme.mainButton}
-            onPressOut={addWorkout}
-          >
-            <Text style={PageTheme.mainButtonText}>Finish Workout</Text>
-          </TouchableOpacity>
+              <TouchableOpacity
+              style={PageTheme.mainButton}
+              onPressOut={addWorkout}
+              >
+              <Text style={PageTheme.mainButtonText}>Finish Workout</Text>
+              </TouchableOpacity>
+            </>}
+            />
+
+
     </GestureHandlerRootView>
   )
 }
