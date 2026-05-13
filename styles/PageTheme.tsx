@@ -110,6 +110,7 @@ export default StyleSheet.create({
 	setLabel: {
 		color: Colours.foreground,
 		fontSize: 20,
+		fontWeight: 'bold',
 		width: "22%",
 
 	},

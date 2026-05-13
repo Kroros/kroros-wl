@@ -7,7 +7,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { ExerciseSet } from "@/components/types";
 import { File, Paths } from "expo-file-system";
 import type { Workout } from "@/components/types";
@@ -15,6 +15,7 @@ import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flat
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Colours from "@/components/Colours";
 import { useSharedValue, withTiming, withSequence } from "react-native-reanimated";
+import type { Session } from "@/components/types";
 
 export default function Session() {
   const { wId } = useLocalSearchParams();
@@ -25,9 +26,23 @@ export default function Session() {
       const existing: Workout[] = JSON.parse(await file.text());
       setWorkout(existing.find(w => w.id == Number(wId))!);
   };
-
   const [ currentIndex, setCurrentIndex ] = useState(0);
   const [ sets, setSets ] = useState<Record<number, ExerciseSet[]>>({});
+  const [ prevSesh, setPrevSesh ] = useState<Session>();
+
+  const stats = useMemo(() => {
+    let exercises = 0, totalSets = 0, reps = 0, volume = 0;
+    for (let i = 0; i < workout.exercises.length; i++) {
+      const exerciseSets = sets[i] ?? [];
+      if (exerciseSets.length > 0) exercises++;
+      totalSets += exerciseSets.length;
+      for (const set of exerciseSets) {
+        reps += set.reps;
+        volume += set.reps * (set.weight ?? 0);
+      }
+    }
+    return { exercises, totalSets, reps, volume };
+  }, [sets, workout]);
 
   useEffect(() => {
     getWorkout();
@@ -68,19 +83,23 @@ export default function Session() {
   const translateX = useSharedValue(0);
 
   const goNext = () => {
-    setCurrentIndex(i => i + 1);
-    translateX.value = withSequence(
-      withTiming(400, { duration: 0 }),
-      withTiming(0, { duration: 300 })
-    );
+    if (currentIndex < workout.exercises.length) {
+      setCurrentIndex(i => i + 1);
+      translateX.value = withSequence(
+        withTiming(400, { duration: 0 }),
+        withTiming(0, { duration: 300 })
+      );
+    }
   };
 
   const goPrev = () => {
-    setCurrentIndex(i => i - 1);
-    translateX.value = withSequence(
-      withTiming(-400, { duration: 0 }),
-      withTiming(0, { duration: 300 })
-    );
+    if (currentIndex > 0) {
+      setCurrentIndex(i => i - 1);
+      translateX.value = withSequence(
+        withTiming(-400, { duration: 0 }),
+        withTiming(0, { duration: 300 })
+      );
+    }
   };
 
   return (<>
@@ -89,13 +108,14 @@ export default function Session() {
         <View style={PageTheme.workoutHeader}>
           <Text style={PageTheme.workoutHeaderText}>{workout.name}</Text>
         </View>
-
+        {currentIndex < workout.exercises.length ? (
+        <>
         <View style={PageTheme.exerciseHeader}>
           <Text style={PageTheme.exerciseHeaderText}>{workout.exercises[currentIndex].name}</Text>
         </View>
 
         <GestureHandlerRootView style={PageTheme.setInputFieldContainer}>
-          <DraggableFlatList
+        <DraggableFlatList
             style={{width: "100%"}}
             data={sets[currentIndex] ?? []}
             keyExtractor={(item, index) => index.toString()}
@@ -145,6 +165,11 @@ export default function Session() {
           />
           
         </GestureHandlerRootView>
+        </>) : (
+        <>
+          <Text>dfdf</Text>
+        </>
+        )}
 
         <View style={PageTheme.arrows}>
           <TouchableOpacity style={PageTheme.arrowButton}
