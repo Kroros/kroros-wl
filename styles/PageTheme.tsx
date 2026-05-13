@@ -57,5 +57,12 @@ export default StyleSheet.create({
 		color: Colours.inactive_tab_foreground,
 		fontSize: 16,
 		marginLeft: "10%",
+	},
+	redButton: {
+		backgroundColor: Colours.alert,
+		borderRadius: 5,
+		width: "90%",
+		marginLeft: "5%",
+		marginTop: "2.5%",
 	}
 });

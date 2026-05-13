@@ -53,21 +53,11 @@ export default function CreateWorkout() {
   }
 
   const deleteWorkout = async () => {
-    if (exercises.length >0) {
-      const directory = new Directory(Paths.document, 'data');
-      if (!directory.exists) {
-        directory.create();
-      }
-
-      const file = new File(Paths.document, 'data', 'workouts.json');
-
-      if (!file.exists) {
-        file.create();
-      } else {
-        const existing = JSON.parse(await file.text());
-      }
-
-    }
+    const file = new File(Paths.document, 'data', 'workouts.json');
+    const existing: Workout[] = file.exists ? JSON.parse(await file.text()) : [];
+    const filtered = existing.filter(w => w.id != wId);
+    file.write(JSON.stringify(filtered));
+    router.back();
   }
 
   const addWorkout = async () => {
@@ -126,6 +116,16 @@ export default function CreateWorkout() {
               >
               <Text style={PageTheme.mainButtonText}>Finish Workout</Text>
               </TouchableOpacity>
+              {wId && (
+                <Pressable
+                style={PageTheme.redButton}       
+                onPress={() => {
+                  deleteWorkout();
+                }}
+                >
+                <Text style={PageTheme.mainButtonText}> Delete Workout </Text>
+                </Pressable>
+              )}
             </>}
             />
 
