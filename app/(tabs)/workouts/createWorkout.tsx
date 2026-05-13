@@ -82,54 +82,52 @@ export default function CreateWorkout() {
 
   return (
     <GestureHandlerRootView style={PageTheme.pageContainer}>
-          <DraggableFlatList
-            data = {exercises}
-            onDragEnd={ ({ data }) => setExercises(data) }
-            keyExtractor={(item) => (item.id).toString()}
-            renderItem={renderItem}
-            ListHeaderComponent={
-              <View style={PageTheme.container}> 
-              <Text style={PageTheme.bodyText}> Workout Name </Text>
-              <TextInput 
-                onChangeText={setName}
-                style={PageTheme.textInput}
-                value={name}
-              />
-              </View>
-            } 
+       <DraggableFlatList
+         data = {exercises}
+         onDragEnd={ ({ data }) => setExercises(data) }
+         keyExtractor={(item) => (item.id).toString()}
+         renderItem={renderItem}
+         ListHeaderComponent={
+           <View style={PageTheme.container}> 
+           <Text style={PageTheme.bodyText}> Workout Name </Text>
+           <TextInput 
+             onChangeText={setName}
+             style={PageTheme.textInput}
+             value={name}
+           />
+           </View>
+         } 
 
-            ListFooterComponent={<>
-              <Pressable style={PageTheme.mainButton} onPress={() => {
-                setCallback((exercise) => {
-                  setExercises(prev => [...prev, exercise]);
-                });
-                router.push('/workouts/createExercise');
-              }}>
-              <Text style={PageTheme.mainButtonText}> Add Exercise </Text>
-              </Pressable>
+         ListFooterComponent={<>
+           <Pressable style={PageTheme.mainButton} onPress={() => {
+             setCallback((exercise) => {
+               setExercises(prev => [...prev, exercise]);
+             });
+             router.push('/workouts/createExercise');
+           }}>
+           <Text style={PageTheme.mainButtonText}> Add Exercise </Text>
+           </Pressable>
 
-              <Hr/>
+           <Hr/>
 
-              <TouchableOpacity
-              style={PageTheme.mainButton}
-              onPressOut={addWorkout}
-              >
-              <Text style={PageTheme.mainButtonText}>Finish Workout</Text>
-              </TouchableOpacity>
-              {wId && (
-                <Pressable
-                style={PageTheme.redButton}       
-                onPress={() => {
-                  deleteWorkout();
-                }}
-                >
-                <Text style={PageTheme.mainButtonText}> Delete Workout </Text>
-                </Pressable>
-              )}
-            </>}
-            />
-
-
+           <TouchableOpacity
+           style={PageTheme.mainButton}
+           onPressOut={addWorkout}
+           >
+           <Text style={PageTheme.mainButtonText}>Finish Workout</Text>
+           </TouchableOpacity>
+           {wId && (
+             <Pressable
+             style={PageTheme.redButton}       
+             onPress={() => {
+               deleteWorkout();
+             }}
+             >
+             <Text style={PageTheme.mainButtonText}> Delete Workout </Text>
+             </Pressable>
+           )}
+         </>}
+         />
     </GestureHandlerRootView>
   )
 }

@@ -34,12 +34,12 @@ export default StyleSheet.create({
 	},
 	mainButton: {
 		backgroundColor: Colours.active_border_color,
-		borderRadius: 5,
+		borderRadius: BORDER_RADIUS,
 		width: "90%",
 		marginLeft: "5%",
+		alignItems: 'center',
 	},
 	mainButtonText: {
-		marginLeft: "25%",
 		fontSize: 24,
 		color: Colours.black1,
 	},
@@ -60,9 +60,67 @@ export default StyleSheet.create({
 	},
 	redButton: {
 		backgroundColor: Colours.alert,
-		borderRadius: 5,
+		borderRadius: BORDER_RADIUS,
 		width: "90%",
 		marginLeft: "5%",
 		marginTop: "2.5%",
+	},
+	rowContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+	},
+	workoutHeader: {
+		width: "100%",
+		borderBottomColor: Colours.active_border_color,
+		borderBottomWidth: 1,
+		alignItems: 'center',
+	},
+	workoutHeaderText: {
+		fontSize: 28,
+		color: Colours.foreground,
+	},
+	exerciseHeader: {
+		width: "100%",
+		alignItems: 'center',
+	},
+	exerciseHeaderText: {
+		fontSize: 24,
+		color: Colours.foreground,
+	},
+	setInputFieldContainer: {
+		width: "95%",
+		flex: 1,
+		flexDirection: 'column',
+		justifyContent: 'space-between',
+		alignItems: 'center'
+	},
+	setInputRow: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginTop: "1%",
+	},
+	setInputField: {
+		width: "22%",
+		backgroundColor: Colours.white1,
+		borderColor: Colours.white0,
+		borderWidth: 2,
+	},
+	setLabel: {
+		color: Colours.foreground,
+		fontSize: 20,
+		width: "22%",
+
+	},
+	arrows: {
+		marginLeft: "10%",
+		width: "80%",
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+	},
+	arrowButton: {
+
 	}
 });
