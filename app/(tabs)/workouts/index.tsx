@@ -13,7 +13,7 @@ import type { Workout } from '@/components/types';
 import { Paths, File, Directory } from 'expo-file-system';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, router } from 'expo-router';
 
 export default function Workouts() {
   const [workouts, setWorkouts ] = useState<Workout[]>([]);
@@ -43,6 +43,16 @@ export default function Workouts() {
         <TouchableOpacity
           style={PageTheme.container}
           key={item.id}
+          onPress={() => {
+            router.push({
+              pathname: '/workouts/createWorkout',
+              params: {
+                id: item.id,
+                workoutName: item.name,
+                exercises: JSON.stringify(item.exercises)
+              }
+            });
+          }}
         >
           <Text style={PageTheme.listText}>{ item.name }</Text>
           <Text style={PageTheme.listSubtext}>{ item.exercises.length.toString() } Exercises</Text>
@@ -50,7 +60,6 @@ export default function Workouts() {
       </ScaleDecorator>
     )
   };
-
 
   return (
     <SafeAreaView style={PageTheme.pageContainer}>

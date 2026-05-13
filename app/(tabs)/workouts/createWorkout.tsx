@@ -1,5 +1,5 @@
 import PageTheme from '@/styles/PageTheme';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import {
   View,
   Text,
@@ -8,17 +8,28 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import type { Exercise, Workout } from '@/components/types';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { setCallback } from '@/extensions/exerciseCallback';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 import Hr from '@/components/Hr';
 import { Paths, File, Directory } from 'expo-file-system';
 
-
 export default function CreateWorkout() {
   const [ exercises, setExercises ] = useState<Exercise[]>([]);
   const [ name, setName ] = useState("");
+  const [ wId, setId ] = useState<number>();
+
+
+  const { id, workoutName, exercises: exercisesParams } = useLocalSearchParams();
+
+  useEffect(() => {
+    if (id) {
+      setId(Number(id));
+      setName(workoutName as string);
+      setExercises(JSON.parse(exercisesParams as string));
+    }
+  }, [])
 
   const renderItem = ({ item, drag, isActive }: RenderItemParams<Exercise>) => {
     return (
@@ -28,6 +39,7 @@ export default function CreateWorkout() {
           key={item.id}
           onLongPress={drag}
           disabled={isActive}
+          onPress={() => { removeExercise(item.id) }}
         >
           <Text style={PageTheme.listText}>{ item.name }</Text>
         </TouchableOpacity>
@@ -35,14 +47,13 @@ export default function CreateWorkout() {
     )
   }
 
-  const addWorkout = async () => {
-    if (exercises.length > 0){
-      const w: Workout = {
-        id: Date.now(),
-        name: name,
-        exercises: exercises,
-      }
+  const removeExercise = (id: number) => {
+    let filtered = exercises.filter(e => e.id != id);
+    setExercises(filtered);
+  }
 
+  const deleteWorkout = async () => {
+    if (exercises.length >0) {
       const directory = new Directory(Paths.document, 'data');
       if (!directory.exists) {
         directory.create();
@@ -52,12 +63,29 @@ export default function CreateWorkout() {
 
       if (!file.exists) {
         file.create();
-        file.write(JSON.stringify([w]));
       } else {
         const existing = JSON.parse(await file.text());
-        existing.push(w);
-        file.write(JSON.stringify(existing));
       }
+
+    }
+  }
+
+  const addWorkout = async () => {
+    const directory = new Directory(Paths.document, 'data');
+    if (!directory.exists) {
+      directory.create();
+    }
+
+    const file = new File(Paths.document, 'data', 'workouts.json');
+    const existing: Workout[] = file.exists ? JSON.parse(await file.text()) : [];
+
+    if (wId) {
+      const updated = existing.map(w => w.id == wId ? { id: wId, name, exercises } : w);
+      file.write(JSON.stringify(updated));
+    } else if (exercises.length > 0) {
+      existing.push({ id: Date.now(), name, exercises });
+      if (!file.exists) file.create();
+      file.write(JSON.stringify(existing));
     }
     router.back();
   };
@@ -75,6 +103,7 @@ export default function CreateWorkout() {
               <TextInput 
                 onChangeText={setName}
                 style={PageTheme.textInput}
+                value={name}
               />
               </View>
             } 

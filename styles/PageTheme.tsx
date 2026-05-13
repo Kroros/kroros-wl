@@ -3,7 +3,7 @@ import Colours from '@/components/Colours';
 
 const CONTAINER_MARGINS = 10;
 const BORDER_WIDTH = 3;
-const BORDER_RADIUS = 15;
+const BORDER_RADIUS = 0;
 const CONTAINER_PADDING = 5;
 
 export default StyleSheet.create({
