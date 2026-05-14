@@ -123,5 +123,60 @@ export default StyleSheet.create({
 	},
 	arrowButton: {
 
-	}
+	},
+	summaryContainer: {
+		flexDirection: 'column',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		width: "100%"
+	},
+	summaryItem: {
+		flexDirection: 'column',
+		justifyContent: 'space-between',
+		alignItems: 'flex-start',
+		width: "45%",
+		margin: "2%",
+		backgroundColor: Colours.selection_background,
+		borderWidth: 2,
+		borderColor: Colours.active_border_color,
+	},
+	summaryText: {
+		fontSize: 24,
+		fontWeight: 'bold',
+		color: Colours.foreground,
+		marginLeft: "5%",
+	},
+	miniSummaryContainer: {
+		flexDirection: 'column',
+		justifyContent: 'space-between',
+		alignItems: 'flex-start',
+		width: "100%",
+		borderColor: Colours.white1,
+		borderWidth: 1,
+		marginTop: "1%",
+		marginBottom: "1%",
+	},
+	miniSummary: {
+		flexDirection: 'row',
+		justifyContent: 'flex-start',
+		alignItems: 'flex-start',
+	},
+	miniSummaryLabel: {
+		color: Colours.white1,
+		fontSize: 18,
+		fontWeight: 'bold',
+		marginLeft: "5%",
+	},
+	miniSummaryText: {
+		marginLeft: "5%",
+		width: "30%",
+		fontSize: 14,
+		color: Colours.white0,
+	},
+	setLabel2:{
+		color: Colours.foreground,
+		fontSize: 16,
+		fontWeight: 'bold',
+		width: "22%",
+	} 
 });

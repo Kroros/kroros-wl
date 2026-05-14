@@ -6,16 +6,15 @@ import {
   TextInput,
   TouchableOpacity
 } from 'react-native';
-import { router, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
 import { ExerciseSet } from "@/components/types";
-import { File, Paths } from "expo-file-system";
-import type { Workout } from "@/components/types";
+import type { Session, Workout } from "@/components/types";
 import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Colours from "@/components/Colours";
 import { useSharedValue, withTiming, withSequence } from "react-native-reanimated";
-import type { Session } from "@/components/types";
+import { Paths, File, Directory } from 'expo-file-system';
 
 export default function Session() {
   const { wId } = useLocalSearchParams();
@@ -102,7 +101,38 @@ export default function Session() {
     }
   };
 
+  const endSession = async () => {
+    let eSets: ExerciseSet[] = workout.exercises.flatMap((_, i) => sets[i] ?? []);
+    
+    const s: Session = {
+      id: Date.now(),
+      date: new Date().toISOString(),
+      workout: workout,
+      sets: eSets
+    }
+    if (stats.reps > 0) {
+      const directory = new Directory(Paths.document, 'data');
+      if (!directory.exists) {
+        directory.create();
+      }
+
+      const file = new File(Paths.document, 'data', 'sessions.json');
+      if (!file.exists) {
+        file.create();
+        file.write(JSON.stringify([]));
+      }
+
+      const text = await file.text();
+      const existing: Session[] = text.length > 0 ? JSON.parse(text): [];
+      existing.push(s);
+      file.write(JSON.stringify(existing));
+      console.log(await file.text());
+    } 
+    router.dismiss(2);
+  }
+
   return (<>
+          <Stack.Screen options={{ headerShown: false }} />
     {workout.exercises.length > 0 && (
       <SafeAreaView style={PageTheme.pageContainer}>
         <View style={PageTheme.workoutHeader}>
@@ -150,6 +180,7 @@ export default function Session() {
                 </View>
               );
             }}
+
             ListHeaderComponent={
               <View style={PageTheme.setInputRow}>
               <Text style={PageTheme.setLabel}>{}</Text>
@@ -167,7 +198,38 @@ export default function Session() {
         </GestureHandlerRootView>
         </>) : (
         <>
-          <Text>dfdf</Text>
+          <View style={PageTheme.summaryContainer}>
+            <View style={PageTheme.setInputRow}>
+              <View style={PageTheme.summaryItem}>
+                <Text style={PageTheme.summaryText}>Exercises</Text>
+                <Text style={PageTheme.summaryText}>{stats.exercises}</Text>
+              </View>
+
+              <View style={PageTheme.summaryItem}>
+                <Text style={PageTheme.summaryText}>Sets</Text>
+                <Text style={PageTheme.summaryText}>{stats.totalSets}</Text>
+              </View>
+            </View>
+
+            <View style={PageTheme.setInputRow}>
+              <View style={PageTheme.summaryItem}>
+                <Text style={PageTheme.summaryText}>Reps</Text>
+                <Text style={PageTheme.summaryText}>{stats.reps}</Text>
+              </View>
+
+              <View style={PageTheme.summaryItem}>
+                <Text style={PageTheme.summaryText}>Volume</Text>
+                <Text style={PageTheme.summaryText}>{stats.volume + " kg"}</Text>
+              </View>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={PageTheme.mainButton}
+            onPress={endSession}
+          >
+            <Text style={PageTheme.mainButtonText}> End Session </Text>
+          </TouchableOpacity>
         </>
         )}
 

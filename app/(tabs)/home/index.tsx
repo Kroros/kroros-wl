@@ -8,9 +8,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import PageTheme from '@/styles/PageTheme';
 import { Calendar, CalendarUtils } from 'react-native-calendars';
 import Colours from '@/components/Colours';
-import type { Exercise, Workout, Session } from '@/components/types';
+import type { Session, Workout } from '@/components/types';
 import { Paths, File, Directory } from 'expo-file-system';
 import { router } from 'expo-router';
+import { nullSesh, testSessions } from '@/components/TestSessions';
 
 const time = new Date();
 const dd = String(time.getDate()).padStart(2, '0');
@@ -20,8 +21,7 @@ const today = yyyy + '-' + mm + '-' + dd;
 
 export default function CalendarPage() {
   const [ selected, setSelected ] = useState(today);
-  const [ session, setSession ] = useState<Session | undefined>();
-  const [ sessionName, setSessionName ] = useState<string>("No Training Session");
+  const [ session, setSession ] = useState<Session>(nullSesh);
 
   const getSession = async () => {
     const directory = new Directory(Paths.document, 'data');
@@ -36,19 +36,14 @@ export default function CalendarPage() {
     }
 
     const text = await file.text();
-    const sessions: Session[] = text ? JSON.parse(text) : [];
-    const currentSesh: Session | undefined = sessions.find(s => s.date.split('T')[0] == selected);
+    const sessions: Session[] = text.length > 0 ? JSON.parse(text) : [];
+    const currentSesh: Session = sessions.find(s => s.date.split('T')[0] == selected) ?? nullSesh;
     setSession(currentSesh);
-    if (currentSesh) {
-      setSessionName(currentSesh.workout.name);
-    } else {
-      setSessionName("No Training Session");
-    }
   };
 
   useEffect(() => {
     getSession();
-  }, [session]);
+  }, [selected]);
 
   const onDayPress = useCallback((day: any) => {
     setSelected(day.dateString);
@@ -69,6 +64,23 @@ export default function CalendarPage() {
       }
     };
   }, [selected]);
+
+  const stats = useMemo(() => {
+    let exercises = 0, totalSets = 0, reps = 0, volume = 0;
+    const s = session;
+    if (!s) return { exercises, totalSets, reps, volume };
+
+    for (const exercise of s.workout.exercises) {
+      const exerciseSets = s.sets.filter(set => set.exerciseId === exercise.id);
+      if (exerciseSets.length > 0) exercises++;
+      totalSets += exerciseSets.length;
+      for (const set of exerciseSets) {
+        reps += set.reps;
+        volume += set.reps * (set.weight ?? 0);
+      }
+    }
+    return { exercises, totalSets, reps, volume };
+  }, [session]);
 
   return (
     <SafeAreaView style={PageTheme.pageContainer}>
@@ -95,12 +107,74 @@ export default function CalendarPage() {
       >
         <View style={PageTheme.rowContainer}>
           <Text style={PageTheme.bodyText}>Training</Text>
-          <Text style={PageTheme.listSubtext}>{sessionName}</Text>
         </View>
+        {session.workout.name != "null" && 
+          (<View style={PageTheme.miniSummaryContainer}>
+            <Text style={PageTheme.miniSummaryLabel}>{session.workout.name == "null" ? "No Workout Today" : session.workout.name}</Text>
+
+            <View style={PageTheme.rowContainer}>
+              <Text style={PageTheme.miniSummaryText}>{stats.exercises} Exercises</Text>
+              <Text style={PageTheme.miniSummaryText}>{stats.totalSets} Sets</Text>
+              <Text style={PageTheme.miniSummaryText}>{stats.reps} Reps</Text>
+            </View> 
+          </View>)}
+
 
         <Button
-          onPress={() => router.push('/home/selectWorkout')}
-          title="Start Workout"
+          onPress={() => {
+            if (session.workout.name == "null") {
+              router.push('/home/selectWorkout');
+            } else {
+              router.push({
+                pathname: '/home/summary',
+                params: {
+                  sId: session.id,
+                  ex: stats.exercises,
+                  sets: stats.totalSets,
+                  reps: stats.reps,
+                  volume: stats.volume,
+                  sessionDate: session.date
+                }
+              })
+            }
+          }}
+          title={session.workout.name == "null" ? "START WORKOUT" : "SEE SUMMARY"}
+          color={Colours.active_border_color}
+        />
+        <Button
+          onPress={async () => {
+            const file = new File(Paths.document, 'data', 'sessions.json');
+            const text = await file.text();
+            const existing: Session[] = text.length > 0 ? JSON.parse(await file.text()) : []
+            const filtered = existing.filter(s => s.date.split("T")[0] != '2026-05-8');
+            const filtered2 = filtered.filter(s => s.date.split("T")[0] != '2026-05-9');
+            file.write(JSON.stringify(filtered2));
+          }}
+          title={"Delete Today's Session"}
+          color={Colours.active_border_color}
+        />
+
+        <Button
+          onPress={async () => {
+            const file = new File(Paths.document, 'data', 'sessions.json');
+            const text = await file.text();
+            const existing: Session[] = text.length > 0 ? JSON.parse(await file.text()) : []
+            const newSessions = existing.concat(testSessions);
+            file.write(JSON.stringify(newSessions));
+            console.log("Sessions Added");
+            console.log(text);
+          }}
+          title={"Add test sessions"}
+          color={Colours.active_border_color}
+        />
+
+        <Button
+          onPress={async () => {
+            const file = new File(Paths.document, 'data', 'sessions.json');
+            const text = await file.text();
+            console.log(text);
+          }}
+          title={"Log Sessions"}
           color={Colours.active_border_color}
         />
       </View>

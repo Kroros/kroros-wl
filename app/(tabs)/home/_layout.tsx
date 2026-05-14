@@ -5,7 +5,6 @@ export default function WorkoutsStack() {
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} /> 
       <Stack.Screen name="selectWorkout" options={{ title: "Select Workout" }} /> 
-      <Stack.Screen name="session" options={{ headerShown: false }} /> 
     </Stack>
   )
 }
