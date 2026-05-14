@@ -178,5 +178,11 @@ export default StyleSheet.create({
 		fontSize: 16,
 		fontWeight: 'bold',
 		width: "22%",
-	} 
+	},
+	setInputField1: {
+		width: "100%",
+		backgroundColor: Colours.white1,
+		borderColor: Colours.white0,
+		borderWidth: 2,
+	},
 });

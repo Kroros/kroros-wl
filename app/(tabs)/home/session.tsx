@@ -4,17 +4,19 @@ import {
   Text,
   View,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  FlatList
 } from 'react-native';
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
 import { ExerciseSet } from "@/components/types";
 import type { Session, Workout } from "@/components/types";
-import DraggableFlatList, { RenderItemParams } from "react-native-draggable-flatlist";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Colours from "@/components/Colours";
 import { useSharedValue, withTiming, withSequence } from "react-native-reanimated";
 import { Paths, File, Directory } from 'expo-file-system';
+import { getPrevSesh } from "@/extensions/getPrevSesh";
+import { nullSesh } from "@/components/TestSessions";
 
 export default function Session() {
   const { wId } = useLocalSearchParams();
@@ -27,7 +29,7 @@ export default function Session() {
   };
   const [ currentIndex, setCurrentIndex ] = useState(0);
   const [ sets, setSets ] = useState<Record<number, ExerciseSet[]>>({});
-  const [ prevSesh, setPrevSesh ] = useState<Session>();
+  const [ prevSesh, setPrevSesh ] = useState<Session>(nullSesh);
 
   const stats = useMemo(() => {
     let exercises = 0, totalSets = 0, reps = 0, volume = 0;
@@ -46,6 +48,35 @@ export default function Session() {
   useEffect(() => {
     getWorkout();
   }, []);
+
+  useEffect(() => {
+    const fetchPrev = async () => {
+      const pSesh = await getPrevSesh(new Date().toISOString().split('T')[0] as string, workout.id);
+      setPrevSesh(pSesh ?? nullSesh);
+      
+      if (pSesh) {
+        const preFilled: Record<number, ExerciseSet[]> = {};
+        workout.exercises.forEach((exercise, i) => {
+          const prevExerciseSets = pSesh.sets.filter(s => s.exerciseId === exercise.id);
+          preFilled[i] = prevExerciseSets.map(set => ({
+            exerciseId: exercise.id,
+            reps: 0,
+            weight: 0,
+            rir: 0,
+            side: set.side,
+          }));
+        });
+
+        setSets(preFilled);
+      }
+    };
+    fetchPrev();
+  }, [workout]);
+
+  const getPrevSet = (exerciseId: number, index: number): ExerciseSet | undefined => {
+    const prevExerciseSets = prevSesh.sets.filter(s => s.exerciseId === exerciseId);
+    return prevExerciseSets[index];
+  }
 
   const addSet = () => {
     const exercise = workout.exercises[currentIndex];
@@ -126,13 +157,22 @@ export default function Session() {
       const existing: Session[] = text.length > 0 ? JSON.parse(text): [];
       existing.push(s);
       file.write(JSON.stringify(existing));
-      console.log(await file.text());
     } 
-    router.dismiss(2);
+    router.push({
+      pathname: '/home/summary',
+      params: {
+        sId: s.id,
+        ex: stats.exercises,
+        sets: stats.totalSets,
+        reps: stats.reps,
+        volume: stats.volume,
+        sessionDate: s.date
+      }
+    });
   }
 
   return (<>
-          <Stack.Screen options={{ headerShown: false }} />
+    <Stack.Screen options={{ headerShown: false }} />
     {workout.exercises.length > 0 && (
       <SafeAreaView style={PageTheme.pageContainer}>
         <View style={PageTheme.workoutHeader}>
@@ -144,39 +184,93 @@ export default function Session() {
           <Text style={PageTheme.exerciseHeaderText}>{workout.exercises[currentIndex].name}</Text>
         </View>
 
-        <GestureHandlerRootView style={PageTheme.setInputFieldContainer}>
-        <DraggableFlatList
+        <View style={PageTheme.setInputFieldContainer}>
+        <FlatList
             style={{width: "100%"}}
             data={sets[currentIndex] ?? []}
+            extraData={prevSesh}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item, drag, isActive }) => {
+            renderItem={({ item }) => {
               const index = (sets[currentIndex] ?? []).indexOf(item);
               const setNumber = Math.floor(index / (workout.exercises[currentIndex].unilateral ? 2 : 1)) + 1;
               const label = item.side ? `Set ${item.side}${setNumber}` : `Set ${setNumber}`;
+              const prevSet = getPrevSet(workout.exercises[currentIndex].id, index);
               return (
                 <View style={PageTheme.setInputRow}>
                   <Text style={PageTheme.setLabel}>{label}</Text>
-                  <TextInput
-                    style={PageTheme.setInputField}
-                    placeholder="kg"
-                    keyboardType="numeric"
-                    value={item.weight?.toString()}
-                    onChangeText={(val) => updateSet(index, 'weight', Number(val))}
-                  />
-                  <TextInput
-                    style={PageTheme.setInputField}
-                    placeholder="reps"
-                    keyboardType="numeric"
-                    value={item.reps?.toString()}
-                    onChangeText={(val) => updateSet(index, 'reps', Number(val))}
-                  />
-                  <TextInput
-                    style={PageTheme.setInputField}
-                    placeholder="RIR"
-                    keyboardType="numeric"
-                    value={item.rir?.toString()}
-                    onChangeText={(val) => updateSet(index, 'rir', Number(val))}
-                  />
+                  <View style={{ position: 'relative', width: "22%" }}>
+                    <TextInput
+                      style={PageTheme.setInputField1}
+                      placeholder={prevSet ? prevSet.weight.toString() : "0"}
+                      keyboardType="numeric"
+                      onChangeText={(val) => updateSet(index, 'weight', Number(val))}
+                    />
+                    {prevSet && sets[currentIndex]?.[index]?.weight > 0 && (() => {
+                      const diff = sets[currentIndex][index].weight - prevSet.weight;
+                      return (
+                        <Text style={{
+                          position: 'absolute',
+                          right: 4,
+                          top: 0,
+                          bottom: 0,
+                          textAlignVertical: 'center',
+                          color: diff > 0 ? Colours.green1 : diff < 0 ? Colours.alert : Colours.black1,
+                          pointerEvents: 'none',
+                        }}>
+                        {diff > 0 ? `+${diff}` : diff}
+                        </Text>
+                      );
+                    })()}
+                  </View>
+
+                  <View style={{ position: 'relative', width: "22%" }}>
+                    <TextInput
+                      style={PageTheme.setInputField1}
+                      placeholder={prevSet ? prevSet.reps.toString() : "0"}
+                      keyboardType="numeric"
+                      onChangeText={(val) => updateSet(index, 'reps', Number(val))}
+                    />
+                    {prevSet && sets[currentIndex]?.[index]?.reps > 0 && (() => {
+                      const diff = sets[currentIndex][index].reps - prevSet.reps;
+                      return (
+                        <Text style={{
+                          position: 'absolute',
+                          right: 4,
+                          top: 0,
+                          bottom: 0,
+                          textAlignVertical: 'center',
+                          color: diff > 0 ? Colours.green1 : diff < 0 ? Colours.alert : Colours.black1,
+                          pointerEvents: 'none',
+                        }}>
+                        {diff > 0 ? `+${diff}` : diff}
+                        </Text>
+                      );
+                    })()}
+                  </View>
+                  <View style={{ position: 'relative', width: "22%" }}>
+                    <TextInput
+                      style={PageTheme.setInputField1}
+                      placeholder={prevSet ? prevSet.rir.toString() : "0"}
+                      keyboardType="numeric"
+                      onChangeText={(val) => updateSet(index, 'rir', Number(val))}
+                    />
+                    {prevSet && sets[currentIndex]?.[index]?.rir > 0 && (() => {
+                      const diff = sets[currentIndex][index].rir - prevSet.rir;
+                      return (
+                        <Text style={{
+                          position: 'absolute',
+                          right: 4,
+                          top: 0,
+                          bottom: 0,
+                          textAlignVertical: 'center',
+                          color: diff > 0 ? Colours.green1 : diff < 0 ? Colours.alert : Colours.black1,
+                          pointerEvents: 'none',
+                        }}>
+                        {diff > 0 ? `+${diff}` : diff}
+                        </Text>
+                      );
+                    })()}
+                  </View>
                 </View>
               );
             }}
@@ -195,7 +289,7 @@ export default function Session() {
               </TouchableOpacity>}
           />
           
-        </GestureHandlerRootView>
+        </View>
         </>) : (
         <>
           <View style={PageTheme.summaryContainer}>

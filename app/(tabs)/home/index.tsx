@@ -146,9 +146,8 @@ export default function CalendarPage() {
             const file = new File(Paths.document, 'data', 'sessions.json');
             const text = await file.text();
             const existing: Session[] = text.length > 0 ? JSON.parse(await file.text()) : []
-            const filtered = existing.filter(s => s.date.split("T")[0] != '2026-05-8');
-            const filtered2 = filtered.filter(s => s.date.split("T")[0] != '2026-05-9');
-            file.write(JSON.stringify(filtered2));
+            const filtered = existing.filter(s => s.date.split("T")[0] != today);
+            file.write(JSON.stringify(filtered));
           }}
           title={"Delete Today's Session"}
           color={Colours.active_border_color}
@@ -175,6 +174,30 @@ export default function CalendarPage() {
             console.log(text);
           }}
           title={"Log Sessions"}
+          color={Colours.active_border_color}
+        />
+
+        <Button
+          onPress={async () => {
+            const w = {
+              id: 1,
+              name: "Push Day",
+              exercises: [
+                { id: 1, name: "Bench Press", unilateral: false },
+                { id: 2, name: "Dumbbell Shoulder Press", unilateral: false },
+                { id: 3, name: "Cable Lateral Raise", unilateral: true },
+              ]
+            };
+
+            const file = new File(Paths.document, 'data', 'workouts.json');
+            const text = await file.text();
+            const existing = text.length > 0 ? JSON.parse(text) : [];
+            existing.push(w);
+            file.write(JSON.stringify(existing));
+            console.log(await file.text());
+            
+          }}
+          title={"Add Default Workout"}
           color={Colours.active_border_color}
         />
       </View>

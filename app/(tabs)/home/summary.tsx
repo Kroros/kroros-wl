@@ -5,10 +5,9 @@ import {
   View,
   FlatList
 } from 'react-native';
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import type { ExerciseSet, Session } from "@/components/types";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Paths, File } from 'expo-file-system';
 import { nullSesh } from "@/components/TestSessions";
 import { getPrevSesh } from "@/extensions/getPrevSesh"; 
@@ -37,7 +36,6 @@ export default function Summary() {
     const fetchPrev = async () => {
       const pSesh = await getPrevSesh(sessionDate as string, session.workout.id);
       setPrevSesh(pSesh ?? nullSesh);
-      console.log(pSesh);
     };
     fetchPrev();
   }, [session]);
@@ -47,7 +45,8 @@ export default function Summary() {
     return prevExerciseSets[index];
   }
 
-  return (
+  return (<>
+          <Stack.Screen options={{ title: "Summary" }} />
     <SafeAreaView style={PageTheme.pageContainer}>
         <FlatList
           data={exercisesWithSets}
@@ -128,6 +127,6 @@ export default function Summary() {
           }
         />
     </SafeAreaView>
-  )
+  </>)
 }
 
