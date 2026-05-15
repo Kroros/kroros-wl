@@ -100,6 +100,7 @@ export default StyleSheet.create({
 		justifyContent: 'space-between',
 		alignItems: 'center',
 		marginTop: "1%",
+		marginLeft: "5%",
 	},
 	setInputField: {
 		width: "22%",
@@ -185,4 +186,10 @@ export default StyleSheet.create({
 		borderColor: Colours.white0,
 		borderWidth: 2,
 	},
+	setNoteInput: {
+		width: "100%",
+		backgroundColor: Colours.white1,
+		borderColor: Colours.white0,
+		borderWidth: 2,
+	}
 });

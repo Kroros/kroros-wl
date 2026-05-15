@@ -16,6 +16,7 @@ export interface ExerciseSet {
   weight: number,
   rir: number,
   side?: 'L' | 'R',
+  setNote?: string
 }
 
 export interface Session {
@@ -23,4 +24,5 @@ export interface Session {
   date: string,
   workout: Workout,
   sets: ExerciseSet[],
+  exerciseNotes?: Record<number, string>,
 }

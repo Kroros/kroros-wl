@@ -41,7 +41,7 @@ export default function Workouts() {
           style={PageTheme.container}
           key={item.id}
           onPress={() => {
-            router.push({
+            router.replace({
               pathname: '/home/session',
               params: {
                 wId: item.id

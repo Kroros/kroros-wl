@@ -11,7 +11,6 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState, useMemo } from "react";
 import { ExerciseSet } from "@/components/types";
 import type { Session, Workout } from "@/components/types";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Colours from "@/components/Colours";
 import { useSharedValue, withTiming, withSequence } from "react-native-reanimated";
 import { Paths, File, Directory } from 'expo-file-system';
@@ -29,6 +28,7 @@ export default function Session() {
   };
   const [ currentIndex, setCurrentIndex ] = useState(0);
   const [ sets, setSets ] = useState<Record<number, ExerciseSet[]>>({});
+  const [ exNotes, setExNotes ] = useState<Record<number, string>>({});
   const [ prevSesh, setPrevSesh ] = useState<Session>(nullSesh);
 
   const stats = useMemo(() => {
@@ -102,7 +102,7 @@ export default function Session() {
     }
   }; 
 
-  const updateSet = (index: number, field: keyof ExerciseSet, value: number) => {
+  const updateSet = (index: number, field: keyof ExerciseSet, value: number | string) => {
     setSets(prev => {
       const updated = [...(prev[currentIndex] ?? [])];
       updated[index] = { ...updated[index], [field]: value };
@@ -134,12 +134,17 @@ export default function Session() {
 
   const endSession = async () => {
     let eSets: ExerciseSet[] = workout.exercises.flatMap((_, i) => sets[i] ?? []);
+    const mappedNotes: Record<number, string> = {};
+    workout.exercises.forEach((exercise, i) => {
+      if (exNotes[i]) mappedNotes[exercise.id] = exNotes[i];
+    });
     
     const s: Session = {
       id: Date.now(),
       date: new Date().toISOString(),
       workout: workout,
-      sets: eSets
+      sets: eSets,
+      exerciseNotes: mappedNotes,
     }
     if (stats.reps > 0) {
       const directory = new Directory(Paths.document, 'data');
@@ -157,18 +162,21 @@ export default function Session() {
       const existing: Session[] = text.length > 0 ? JSON.parse(text): [];
       existing.push(s);
       file.write(JSON.stringify(existing));
-    } 
-    router.push({
-      pathname: '/home/summary',
-      params: {
-        sId: s.id,
-        ex: stats.exercises,
-        sets: stats.totalSets,
-        reps: stats.reps,
-        volume: stats.volume,
-        sessionDate: s.date
-      }
-    });
+    }
+
+    if (stats.reps > 0) {
+      router.push({
+        pathname: '/home/summary',
+        params: {
+          sId: s.id,
+          ex: stats.exercises,
+          sets: stats.totalSets,
+          reps: stats.reps,
+          volume: stats.volume,
+          sessionDate: s.date
+        }
+      });
+    }
   }
 
   return (<>
@@ -190,12 +198,11 @@ export default function Session() {
             data={sets[currentIndex] ?? []}
             extraData={prevSesh}
             keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => {
-              const index = (sets[currentIndex] ?? []).indexOf(item);
+            renderItem={({ item, index }) => {
               const setNumber = Math.floor(index / (workout.exercises[currentIndex].unilateral ? 2 : 1)) + 1;
               const label = item.side ? `Set ${item.side}${setNumber}` : `Set ${setNumber}`;
               const prevSet = getPrevSet(workout.exercises[currentIndex].id, index);
-              return (
+              return (<>
                 <View style={PageTheme.setInputRow}>
                   <Text style={PageTheme.setLabel}>{label}</Text>
                   <View style={{ position: 'relative', width: "22%" }}>
@@ -203,6 +210,7 @@ export default function Session() {
                       style={PageTheme.setInputField1}
                       placeholder={prevSet ? prevSet.weight.toString() : "0"}
                       keyboardType="numeric"
+                      value={sets[currentIndex]?.[index]?.weight > 0 ? sets[currentIndex][index].weight.toString() : ''}
                       onChangeText={(val) => updateSet(index, 'weight', Number(val))}
                     />
                     {prevSet && sets[currentIndex]?.[index]?.weight > 0 && (() => {
@@ -228,6 +236,7 @@ export default function Session() {
                       style={PageTheme.setInputField1}
                       placeholder={prevSet ? prevSet.reps.toString() : "0"}
                       keyboardType="numeric"
+                      value={sets[currentIndex]?.[index]?.reps > 0 ? sets[currentIndex][index].reps.toString() : ''}
                       onChangeText={(val) => updateSet(index, 'reps', Number(val))}
                     />
                     {prevSet && sets[currentIndex]?.[index]?.reps > 0 && (() => {
@@ -252,6 +261,7 @@ export default function Session() {
                       style={PageTheme.setInputField1}
                       placeholder={prevSet ? prevSet.rir.toString() : "0"}
                       keyboardType="numeric"
+                      value={sets[currentIndex]?.[index]?.rir > 0 ? sets[currentIndex][index].rir.toString() : ''}
                       onChangeText={(val) => updateSet(index, 'rir', Number(val))}
                     />
                     {prevSet && sets[currentIndex]?.[index]?.rir > 0 && (() => {
@@ -272,6 +282,14 @@ export default function Session() {
                     })()}
                   </View>
                 </View>
+                <View style={PageTheme.setInputRow}>
+                  <TextInput
+                    style={PageTheme.setNoteInput}
+                    placeholder={prevSet?.setNote ?? "Set Note"}
+                    value={sets[currentIndex]?.[index]?.setNote ?? sets[currentIndex][index].setNote}
+                    onChangeText={(val) => updateSet(index, 'setNote', val)}
+                  />
+                </View></>
               );
             }}
 
@@ -283,10 +301,16 @@ export default function Session() {
               <Text style={[PageTheme.setLabel, { textAlign: 'center' }]}>RIR</Text>
               </View>
             }
-            ListFooterComponent={
+            ListFooterComponent={<>
+              <TextInput
+                style={PageTheme.setNoteInput}
+                placeholder={prevSesh.exerciseNotes?.[currentIndex] ?? "Exercise Note"}
+                value={exNotes[currentIndex] ?? ''}
+                onChangeText={(val) => setExNotes(prev => ({...prev, [currentIndex]: val}))}
+              />
               <TouchableOpacity style={PageTheme.mainButton} onPress={addSet}>
                 <Text style={PageTheme.mainButtonText}>Add Set</Text>
-              </TouchableOpacity>}
+              </TouchableOpacity></>}
           />
           
         </View>
@@ -345,9 +369,7 @@ export default function Session() {
               fontSize: 64,
             }}></Text>
           </TouchableOpacity>
-
         </View>
-
       </SafeAreaView>
     )}
   </>)
