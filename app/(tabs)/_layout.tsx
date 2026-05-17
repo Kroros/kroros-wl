@@ -13,6 +13,9 @@ export default function TabLayout() {
           backgroundColor: Colours.selection_background,
           borderTopColor: Colours.active_border_color,
           borderTopWidth: 1,
+        },
+        tabBarLabelStyle: {
+          fontFamily: 'NerdFont'
         }
       }}  
     >

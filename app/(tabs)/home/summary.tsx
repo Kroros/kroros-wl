@@ -1,7 +1,6 @@
 import PageTheme from "@/styles/PageTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  Text,
   View,
   FlatList
 } from 'react-native';
@@ -12,6 +11,7 @@ import { Paths, File } from 'expo-file-system';
 import { nullSesh } from "@/components/TestSessions";
 import { getPrevSesh } from "@/extensions/getPrevSesh"; 
 import Colours from "@/components/Colours";
+import AppText from "@/components/AppText";
 
 export default function Summary() {
   const { sId, ex, sets, reps, volume, sessionDate } = useLocalSearchParams();
@@ -65,9 +65,9 @@ export default function Summary() {
     const diff = current - prev;
     if (diff === 0) return null;
     return (
-      <Text style={{ color: diff > 0 ? Colours.green1 : diff < 0 ? Colours.alert : Colours.black1 }}>
+      <AppText style={{ color: diff > 0 ? Colours.green1 : diff < 0 ? Colours.alert : Colours.black1 }}>
       {` (${diff > 0 ? '+' : ''}${diff})`}
-      </Text>
+      </AppText>
     );
   };
 
@@ -81,54 +81,54 @@ export default function Summary() {
           renderItem={({ item, index }) => {
             return (<>
             <View style={PageTheme.container}>
-            <Text style={PageTheme.bodyText}>{item.exercise.name}</Text>
+            <AppText style={PageTheme.bodyText}>{item.exercise.name}</AppText>
             <View style={PageTheme.rowContainer}>
-            <Text style={PageTheme.setLabel}>      </Text>
-            <Text style={PageTheme.setLabel}>Weight</Text>
-            <Text style={PageTheme.setLabel}>Reps</Text>
-            <Text style={PageTheme.setLabel}>RIR</Text>
+            <AppText style={PageTheme.setLabel}>      </AppText>
+            <AppText style={PageTheme.setLabel}>Weight</AppText>
+            <AppText style={PageTheme.setLabel}>Reps</AppText>
+            <AppText style={PageTheme.setLabel}>RIR</AppText>
             </View>
             {item.sets.map((set, setIndex) => {
               const prevSet = getPrevSet(item.exercise.id, setIndex);
               return (<View key={setIndex}>
               <View style={PageTheme.rowContainer}>
-              <Text style={PageTheme.setLabel}>
+              <AppText style={PageTheme.setLabel}>
               {set.side ? `${set.side}${Math.floor(index / 2) + 1}` : `Set ${setIndex + 1}`}
-              </Text>
-              <Text style={PageTheme.setLabel2}>
+              </AppText>
+              <AppText style={PageTheme.setLabel2}>
                 {set.weight}kg
                 {prevSet && (
-                  <Text style={{ color: set.weight > prevSet.weight ? Colours.green1 : set.weight < prevSet.weight ? Colours.alert : Colours.black1 }}>
+                  <AppText style={{ color: set.weight > prevSet.weight ? Colours.green1 : set.weight < prevSet.weight ? Colours.alert : Colours.black1 }}>
                     {` (${set.weight > prevSet.weight ? '+' : ''}${set.weight - prevSet.weight})`}
-                  </Text>
+                  </AppText>
                 )}
-              </Text>
-              <Text style={PageTheme.setLabel2}>
+              </AppText>
+              <AppText style={PageTheme.setLabel2}>
                 {set.reps}
                 {prevSet && (
-                  <Text style={{ color: set.reps > prevSet.reps ? Colours.green1 : set.reps < prevSet.reps ? Colours.alert : Colours.black1 }}>
+                  <AppText style={{ color: set.reps > prevSet.reps ? Colours.green1 : set.reps < prevSet.reps ? Colours.alert : Colours.black1 }}>
                     {` (${set.reps > prevSet.reps ? '+' : ''}${set.reps - prevSet.reps})`}
-                  </Text>
+                  </AppText>
                 )}
-                </Text>
-              <Text style={PageTheme.setLabel2}>
+                </AppText>
+              <AppText style={PageTheme.setLabel2}>
                 {set.rir}
                 {prevSet && (
-                  <Text style={{ color: set.rir > prevSet.rir ? Colours.green1 : set.rir < prevSet.rir ? Colours.alert : Colours.black1 }}>
+                  <AppText style={{ color: set.rir > prevSet.rir ? Colours.green1 : set.rir < prevSet.rir ? Colours.alert : Colours.black1 }}>
                     {` (${set.rir > prevSet.rir ? '+' : ''}${set.rir - prevSet.rir})`}
-                  </Text>
+                  </AppText>
                 )}
-                </Text>
+                </AppText>
               </View>
-              <Text style={PageTheme.bodyText}>
+              <AppText style={PageTheme.bodyText}>
                 {set.setNote}
-              </Text>
+              </AppText>
               </View>
             )})}
             {session.exerciseNotes &&
-              <Text style={PageTheme.bodyText}>
+              <AppText style={PageTheme.bodyText}>
                 {session.exerciseNotes[item.exercise.id]}
-              </Text>
+              </AppText>
             }
             </View>
           </>)}}
@@ -137,29 +137,29 @@ export default function Summary() {
             <View style={PageTheme.summaryContainer}>
             <View style={PageTheme.setInputRow}>
               <View style={PageTheme.summaryItem}>
-                <Text style={PageTheme.summaryText}>Exercises</Text>
-                <Text style={PageTheme.summaryText}>{ex}
-                {getPrevSeshStats && renderDiff(Number(ex), getPrevSeshStats.exercises)}</Text>
+                <AppText style={PageTheme.summaryText}>Exercises</AppText>
+                <AppText style={PageTheme.summaryText}>{ex}
+                {getPrevSeshStats && renderDiff(Number(ex), getPrevSeshStats.exercises)}</AppText>
               </View>
 
               <View style={PageTheme.summaryItem}>
-                <Text style={PageTheme.summaryText}>Sets</Text>
-                <Text style={PageTheme.summaryText}>{sets}
-                {getPrevSeshStats && renderDiff(Number(sets), getPrevSeshStats.totalSets)}</Text>
+                <AppText style={PageTheme.summaryText}>Sets</AppText>
+                <AppText style={PageTheme.summaryText}>{sets}
+                {getPrevSeshStats && renderDiff(Number(sets), getPrevSeshStats.totalSets)}</AppText>
               </View>
             </View>
 
             <View style={PageTheme.setInputRow}>
               <View style={PageTheme.summaryItem}>
-                <Text style={PageTheme.summaryText}>Reps</Text>
-                <Text style={PageTheme.summaryText}>{reps}
-                {getPrevSeshStats && renderDiff(Number(reps), getPrevSeshStats.reps)}</Text>
+                <AppText style={PageTheme.summaryText}>Reps</AppText>
+                <AppText style={PageTheme.summaryText}>{reps}
+                {getPrevSeshStats && renderDiff(Number(reps), getPrevSeshStats.reps)}</AppText>
               </View>
 
               <View style={PageTheme.summaryItem}>
-                <Text style={PageTheme.summaryText}>Volume</Text>
-                <Text style={PageTheme.summaryText}>{volume + " kg"}
-                {getPrevSeshStats && renderDiff(Number(volume), getPrevSeshStats.volume)}</Text>
+                <AppText style={PageTheme.summaryText}>Volume</AppText>
+                <AppText style={PageTheme.summaryText}>{volume + " kg"}
+                {getPrevSeshStats && renderDiff(Number(volume), getPrevSeshStats.volume)}</AppText>
               </View>
             </View>
           </View>

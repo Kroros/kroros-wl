@@ -1,7 +1,6 @@
 import PageTheme from "@/styles/PageTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
-  Text,
   View,
   TextInput,
   TouchableOpacity,
@@ -17,6 +16,7 @@ import { Paths, File, Directory } from 'expo-file-system';
 import { getPrevSesh } from "@/extensions/getPrevSesh";
 import { nullSesh } from "@/components/TestSessions";
 import { useSessionStore } from "@/store/sessionStore";
+import AppText from "@/components/AppText";
 
 export default function Session() {
   const { wId } = useLocalSearchParams();
@@ -182,12 +182,12 @@ export default function Session() {
     {activeWorkout.exercises.length > 0 && (
       <SafeAreaView style={PageTheme.pageContainer}>
         <View style={PageTheme.workoutHeader}>
-          <Text style={PageTheme.workoutHeaderText}>{activeWorkout.name}</Text>
+          <AppText style={PageTheme.workoutHeaderText}>{activeWorkout.name}</AppText>
         </View>
         {currentIndex < activeWorkout.exercises.length ? (
         <>
         <View style={PageTheme.exerciseHeader}>
-          <Text style={PageTheme.exerciseHeaderText}>{activeWorkout.exercises[currentIndex].name}</Text>
+          <AppText style={PageTheme.exerciseHeaderText}>{activeWorkout.exercises[currentIndex].name}</AppText>
         </View>
 
         <View style={PageTheme.setInputFieldContainer}>
@@ -202,7 +202,7 @@ export default function Session() {
               const prevSet = getPrevSet(activeWorkout.exercises[currentIndex].id, index);
               return (<>
                 <View style={PageTheme.setInputRow}>
-                  <Text style={PageTheme.setLabel}>{label}</Text>
+                  <AppText style={PageTheme.setLabel}>{label}</AppText>
                   <View style={{ position: 'relative', width: "22%" }}>
                     <TextInput
                       style={PageTheme.setInputField1}
@@ -214,7 +214,7 @@ export default function Session() {
                     {prevSet && sets[currentIndex]?.[index]?.weight > 0 && (() => {
                       const diff = sets[currentIndex][index].weight - prevSet.weight;
                       return (
-                        <Text style={{
+                        <AppText style={{
                           position: 'absolute',
                           right: 4,
                           top: 0,
@@ -224,7 +224,7 @@ export default function Session() {
                           pointerEvents: 'none',
                         }}>
                         {diff > 0 ? `+${diff}` : diff}
-                        </Text>
+                        </AppText>
                       );
                     })()}
                   </View>
@@ -240,7 +240,7 @@ export default function Session() {
                     {prevSet && sets[currentIndex]?.[index]?.reps > 0 && (() => {
                       const diff = sets[currentIndex][index].reps - prevSet.reps;
                       return (
-                        <Text style={{
+                        <AppText style={{
                           position: 'absolute',
                           right: 4,
                           top: 0,
@@ -250,7 +250,7 @@ export default function Session() {
                           pointerEvents: 'none',
                         }}>
                         {diff > 0 ? `+${diff}` : diff}
-                        </Text>
+                        </AppText>
                       );
                     })()}
                   </View>
@@ -265,7 +265,7 @@ export default function Session() {
                     {prevSet && sets[currentIndex]?.[index]?.rir > 0 && (() => {
                       const diff = sets[currentIndex][index].rir - prevSet.rir;
                       return (
-                        <Text style={{
+                        <AppText style={{
                           position: 'absolute',
                           right: 4,
                           top: 0,
@@ -275,7 +275,7 @@ export default function Session() {
                           pointerEvents: 'none',
                         }}>
                         {diff > 0 ? `+${diff}` : diff}
-                        </Text>
+                        </AppText>
                       );
                     })()}
                   </View>
@@ -293,10 +293,10 @@ export default function Session() {
 
             ListHeaderComponent={
               <View style={PageTheme.setInputRow}>
-              <Text style={PageTheme.setLabel}>{}</Text>
-              <Text style={[PageTheme.setLabel, { textAlign: 'center' }]}>Weight</Text>
-              <Text style={[PageTheme.setLabel, { textAlign: 'center' }]}>Reps</Text>
-              <Text style={[PageTheme.setLabel, { textAlign: 'center' }]}>RIR</Text>
+              <AppText style={PageTheme.setLabel}>{}</AppText>
+              <AppText style={[PageTheme.setLabel, { textAlign: 'center' }]}>Weight</AppText>
+              <AppText style={[PageTheme.setLabel, { textAlign: 'center' }]}>Reps</AppText>
+              <AppText style={[PageTheme.setLabel, { textAlign: 'center' }]}>RIR</AppText>
               </View>
             }
             ListFooterComponent={<>
@@ -308,7 +308,7 @@ export default function Session() {
                 multiline={true}
               />
               <TouchableOpacity style={PageTheme.mainButton} onPress={addSet}>
-                <Text style={PageTheme.mainButtonText}>Add Set</Text>
+                <AppText style={PageTheme.mainButtonText}>Add Set</AppText>
               </TouchableOpacity></>}
           />
           
@@ -318,25 +318,25 @@ export default function Session() {
           <View style={PageTheme.summaryContainer}>
             <View style={PageTheme.setInputRow}>
               <View style={PageTheme.summaryItem}>
-                <Text style={PageTheme.summaryText}>Exercises</Text>
-                <Text style={PageTheme.summaryText}>{stats.exercises}</Text>
+                <AppText style={PageTheme.summaryText}>Exercises</AppText>
+                <AppText style={PageTheme.summaryText}>{stats.exercises}</AppText>
               </View>
 
               <View style={PageTheme.summaryItem}>
-                <Text style={PageTheme.summaryText}>Sets</Text>
-                <Text style={PageTheme.summaryText}>{stats.totalSets}</Text>
+                <AppText style={PageTheme.summaryText}>Sets</AppText>
+                <AppText style={PageTheme.summaryText}>{stats.totalSets}</AppText>
               </View>
             </View>
 
             <View style={PageTheme.setInputRow}>
               <View style={PageTheme.summaryItem}>
-                <Text style={PageTheme.summaryText}>Reps</Text>
-                <Text style={PageTheme.summaryText}>{stats.reps}</Text>
+                <AppText style={PageTheme.summaryText}>Reps</AppText>
+                <AppText style={PageTheme.summaryText}>{stats.reps}</AppText>
               </View>
 
               <View style={PageTheme.summaryItem}>
-                <Text style={PageTheme.summaryText}>Volume</Text>
-                <Text style={PageTheme.summaryText}>{stats.volume + " kg"}</Text>
+                <AppText style={PageTheme.summaryText}>Volume</AppText>
+                <AppText style={PageTheme.summaryText}>{stats.volume + " kg"}</AppText>
               </View>
             </View>
           </View>
@@ -345,7 +345,7 @@ export default function Session() {
             style={PageTheme.mainButton}
             onPress={endSession}
           >
-            <Text style={PageTheme.mainButtonText}> End Session </Text>
+            <AppText style={PageTheme.mainButtonText}> End Session </AppText>
           </TouchableOpacity>
         </>
         )}
@@ -354,19 +354,19 @@ export default function Session() {
           <TouchableOpacity style={PageTheme.arrowButton}
             onPress={goPrev}
           >
-            <Text style={{
+            <AppText style={{
               color:Colours.cyan0,
               fontSize: 64,
-            }}></Text>
+            }}></AppText>
           </TouchableOpacity>
 
           <TouchableOpacity style={PageTheme.arrowButton}
             onPress={goNext}
           >
-            <Text style={{
+            <AppText style={{
               color:Colours.cyan0,
               fontSize: 64,
-            }}></Text>
+            }}></AppText>
           </TouchableOpacity>
         </View>
       </SafeAreaView>

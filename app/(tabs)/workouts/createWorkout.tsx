@@ -2,7 +2,6 @@ import PageTheme from '@/styles/PageTheme';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   View,
-  Text,
   Pressable,
   TextInput,
   TouchableOpacity,
@@ -14,6 +13,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 import Hr from '@/components/Hr';
 import { Paths, File, Directory } from 'expo-file-system';
+import AppText from '@/components/AppText';
 
 export default function CreateWorkout() {
   const [ exercises, setExercises ] = useState<Exercise[]>([]);
@@ -41,7 +41,7 @@ export default function CreateWorkout() {
           disabled={isActive}
           onPress={() => { removeExercise(item.id) }}
         >
-          <Text style={PageTheme.listText}>{ item.name }</Text>
+          <AppText style={PageTheme.listText}>{ item.name }</AppText>
         </TouchableOpacity>
       </ScaleDecorator>
     )
@@ -89,7 +89,7 @@ export default function CreateWorkout() {
          renderItem={renderItem}
          ListHeaderComponent={
            <View style={PageTheme.container}> 
-           <Text style={PageTheme.bodyText}> Workout Name </Text>
+           <AppText style={PageTheme.bodyText}> Workout Name </AppText>
            <TextInput 
              onChangeText={setName}
              style={PageTheme.textInput}
@@ -105,7 +105,7 @@ export default function CreateWorkout() {
              });
              router.push('/workouts/createExercise');
            }}>
-           <Text style={PageTheme.mainButtonText}> Add Exercise </Text>
+           <AppText style={PageTheme.mainButtonText}> Add Exercise </AppText>
            </Pressable>
 
            <Hr/>
@@ -114,17 +114,17 @@ export default function CreateWorkout() {
            style={PageTheme.mainButton}
            onPressOut={addWorkout}
            >
-           <Text style={PageTheme.mainButtonText}>Finish Workout</Text>
+           <AppText style={PageTheme.mainButtonText}>Finish Workout</AppText>
            </TouchableOpacity>
            {wId && (
-             <Pressable
+             <TouchableOpacity
              style={PageTheme.redButton}       
              onPress={() => {
                deleteWorkout();
              }}
              >
-             <Text style={PageTheme.mainButtonText}> Delete Workout </Text>
-             </Pressable>
+             <AppText style={PageTheme.mainButtonText}> Delete Workout </AppText>
+             </TouchableOpacity>
            )}
          </>}
          />

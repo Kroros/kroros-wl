@@ -1,7 +1,6 @@
 import React  from 'react';
 import {
     Alert,
-  Text,
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,6 +12,7 @@ import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-nativ
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { router, useFocusEffect } from 'expo-router';
 import { useSessionStore } from '@/store/sessionStore';
+import AppText from '@/components/AppText';
 
 export default function Workouts() {
   const [workouts, setWorkouts ] = useState<Workout[]>([]);
@@ -66,8 +66,8 @@ export default function Workouts() {
             });
           }}
         >
-          <Text style={PageTheme.listText}>{ item.name }</Text>
-          <Text style={PageTheme.listSubtext}>{ item.exercises.length.toString() } Exercises</Text>
+          <AppText style={PageTheme.listText}>{ item.name }</AppText>
+          <AppText style={PageTheme.listSubtext}>{ item.exercises.length.toString() } Exercises</AppText>
         </TouchableOpacity>
       </ScaleDecorator>
     )

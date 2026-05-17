@@ -10,7 +10,7 @@ export default function WorkoutsStack() {
         },
         headerTintColor: Colours.foreground,
         headerTitleStyle: {
-          fontWeight: 'bold',
+          fontFamily: 'NerdFont-Bold'
         }
       }}
     >

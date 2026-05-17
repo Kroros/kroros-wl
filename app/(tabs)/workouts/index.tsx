@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import {
-  Text,
   Pressable,
   TouchableOpacity,
 } from 'react-native';
@@ -14,6 +13,7 @@ import { Paths, File, Directory } from 'expo-file-system';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFocusEffect, router } from 'expo-router';
+import AppText from '@/components/AppText';
 
 export default function Workouts() {
   const [workouts, setWorkouts ] = useState<Workout[]>([]);
@@ -54,8 +54,8 @@ export default function Workouts() {
             });
           }}
         >
-          <Text style={PageTheme.listText}>{ item.name }</Text>
-          <Text style={PageTheme.listSubtext}>{ item.exercises.length.toString() } Exercises</Text>
+          <AppText style={PageTheme.listText}>{ item.name }</AppText>
+          <AppText style={PageTheme.listSubtext}>{ item.exercises.length.toString() } Exercises</AppText>
         </TouchableOpacity>
       </ScaleDecorator>
     )
@@ -77,7 +77,7 @@ export default function Workouts() {
             });
           }}
           >
-          <Text style={PageTheme.mainButtonText}> Create Workout </Text>
+          <AppText style={PageTheme.mainButtonText}> Create Workout </AppText>
           </Pressable>
           </Link>
 

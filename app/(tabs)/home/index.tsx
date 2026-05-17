@@ -1,8 +1,8 @@
 import React, { useCallback, useState, useMemo, useEffect } from 'react';
 import {
   View,
-  Text,
   Button,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PageTheme from '@/styles/PageTheme';
@@ -109,6 +109,10 @@ export default function CalendarPage() {
           monthTextColor: Colours.active_border_color,
           selectedDayBackgroundColor: Colours.blue1,
           textDisabledColor: '#98a0b5',
+          textDayFontFamily: 'NerdFont',
+          textDayHeaderFontFamily: 'NerdFont',
+          textMonthFontFamily: 'NerdFont',
+          todayButtonFontFamily: 'NerdFont'
         }}
       />
       
@@ -116,11 +120,11 @@ export default function CalendarPage() {
         style={PageTheme.container}
       >
         <View style={PageTheme.rowContainer}>
-          <Text style={PageTheme.bodyText}>Training</Text>
+          <AppText style={PageTheme.bodyText}>Training</AppText>
         </View>
         {session.workout.name != "null" && 
           (<View style={PageTheme.miniSummaryContainer}>
-            <Text style={PageTheme.miniSummaryLabel}>{session.workout.name == "null" ? "No Workout Today" : session.workout.name}</Text>
+            <AppText style={PageTheme.miniSummaryLabel}>{session.workout.name == "null" ? "No Workout Today" : session.workout.name}</AppText>
 
             <View style={PageTheme.rowContainer}>
               <AppText style={PageTheme.miniSummaryText}>{stats.exercises} Exercises</AppText>
@@ -130,7 +134,7 @@ export default function CalendarPage() {
           </View>)}
 
 
-        <Button
+        <TouchableOpacity
           onPress={() => {
             if (session.workout.name == "null") {
               router.push('/home/selectWorkout');
@@ -148,9 +152,12 @@ export default function CalendarPage() {
               })
             }
           }}
-          title={session.workout.name == "null" ? "START WORKOUT" : "SEE SUMMARY"}
-          color={Colours.active_border_color}
-        />
+          style={PageTheme.mainButton}
+        >
+        <AppText style={PageTheme.mainButtonText}>
+          {session.workout.name == "null" ? "Start Workout" : "See Summary"}
+        </AppText>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

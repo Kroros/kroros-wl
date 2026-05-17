@@ -3,7 +3,6 @@ import PageTheme from '@/styles/PageTheme';
 import { useRouter } from 'expo-router';
 import {
   View,
-  Text,
   TextInput,
   Switch,
   Pressable,
@@ -11,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getCallback } from '@/extensions/exerciseCallback';
 import { useState } from 'react';
+import AppText from '@/components/AppText';
 
 export default function CreateExercise() {
   const router = useRouter();
@@ -33,7 +33,7 @@ export default function CreateExercise() {
   return (
     <SafeAreaView style={PageTheme.pageContainer}>
       <View style={PageTheme.container}>
-        <Text style={PageTheme.bodyText}>Exercise Name</Text>
+        <AppText style={PageTheme.bodyText}>Exercise Name</AppText>
         <TextInput
           style={PageTheme.textInput}
           onChangeText={setName}
@@ -41,7 +41,7 @@ export default function CreateExercise() {
       </View>
 
       <View style={PageTheme.container}>
-        <Text style={PageTheme.bodyText}>Unilateral</Text>
+        <AppText style={PageTheme.bodyText}>Unilateral</AppText>
         <Switch 
           onValueChange={toggleSwitch}
           value={unilateral}
@@ -53,7 +53,7 @@ export default function CreateExercise() {
         disabled={name.length == 0}
         style={PageTheme.mainButton}
       >
-        <Text style={PageTheme.mainButtonText}> Add Exercise </Text>
+        <AppText style={PageTheme.mainButtonText}> Add Exercise </AppText>
       </Pressable>
     </SafeAreaView>
   )

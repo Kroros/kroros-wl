@@ -23,6 +23,7 @@ export default StyleSheet.create({
 		borderRadius: BORDER_RADIUS,
 		paddingBottom: 15,
 		margin: CONTAINER_MARGINS,
+		fontFamily: 'NerdFont'
 	},
 	container: {
 		backgroundColor: Colours.selection_background,
@@ -47,6 +48,7 @@ export default StyleSheet.create({
 		fontSize: 24,
 		color: Colours.foreground,
 		marginLeft: "5%",
+		fontFamily: 'NerdFont'
 	},
 	listText: {
 		color: Colours.foreground,
@@ -63,7 +65,8 @@ export default StyleSheet.create({
 		borderRadius: BORDER_RADIUS,
 		width: "90%",
 		marginLeft: "5%",
-		marginTop: "2.5%",
+		marginTop: "2%",
+		alignItems: 'center',
 	},
 	rowContainer: {
 		flexDirection: 'row',
@@ -110,8 +113,8 @@ export default StyleSheet.create({
 	},
 	setLabel: {
 		color: Colours.foreground,
-		fontSize: 20,
-		fontWeight: 'bold',
+		fontSize: 18,
+		fontFamily: 'NerdFont-Bold',
 		width: "22%",
 
 	},
@@ -143,7 +146,7 @@ export default StyleSheet.create({
 	},
 	summaryText: {
 		fontSize: 24,
-		fontWeight: 'bold',
+		fontFamily: 'NerdFont-Bold',
 		color: Colours.foreground,
 		marginLeft: "5%",
 	},
@@ -165,7 +168,7 @@ export default StyleSheet.create({
 	miniSummaryLabel: {
 		color: Colours.white1,
 		fontSize: 18,
-		fontWeight: 'bold',
+		fontFamily: 'NerdFont-Bold',
 		marginLeft: "5%",
 	},
 	miniSummaryText: {
@@ -177,8 +180,11 @@ export default StyleSheet.create({
 	setLabel2:{
 		color: Colours.foreground,
 		fontSize: 16,
-		fontWeight: 'bold',
+		fontFamily: 'NerdFont-Bold',
 		width: "22%",
+		borderWidth: 1,
+		padding: "1%",
+		borderColor: Colours.active_border_color,
 	},
 	setInputField1: {
 		width: "100%",
