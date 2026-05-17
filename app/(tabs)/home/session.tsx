@@ -8,7 +8,7 @@ import {
   FlatList
 } from 'react-native';
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, act } from "react";
 import { ExerciseSet } from "@/components/types";
 import type { Session, Workout } from "@/components/types";
 import Colours from "@/components/Colours";
@@ -16,24 +16,21 @@ import { useSharedValue, withTiming, withSequence } from "react-native-reanimate
 import { Paths, File, Directory } from 'expo-file-system';
 import { getPrevSesh } from "@/extensions/getPrevSesh";
 import { nullSesh } from "@/components/TestSessions";
+import { useSessionStore } from "@/store/sessionStore";
 
 export default function Session() {
   const { wId } = useLocalSearchParams();
-  const [ workout, setWorkout ] = useState<Workout>({id: 0, name: "null", exercises: []});
-
-  const getWorkout = async () => {
-      const file = new File(Paths.document, 'data', 'workouts.json');
-      const existing: Workout[] = JSON.parse(await file.text());
-      setWorkout(existing.find(w => w.id == Number(wId))!);
-  };
-  const [ currentIndex, setCurrentIndex ] = useState(0);
-  const [ sets, setSets ] = useState<Record<number, ExerciseSet[]>>({});
-  const [ exNotes, setExNotes ] = useState<Record<number, string>>({});
   const [ prevSesh, setPrevSesh ] = useState<Session>(nullSesh);
+  const [ isLoading, setIsLoading ] = useState(true);
+
+  const {
+    activeWorkout, sets, exNotes, currentIndex, setActiveWorkout, setSets, setExNotes, setCurrentIndex, clearSession
+  } = useSessionStore();
 
   const stats = useMemo(() => {
+    if (!activeWorkout) return { exercises: 0, totalSets: 0, reps: 0, volume: 0 };
     let exercises = 0, totalSets = 0, reps = 0, volume = 0;
-    for (let i = 0; i < workout.exercises.length; i++) {
+    for (let i = 0; i < activeWorkout.exercises.length; i++) {
       const exerciseSets = sets[i] ?? [];
       if (exerciseSets.length > 0) exercises++;
       totalSets += exerciseSets.length;
@@ -43,20 +40,17 @@ export default function Session() {
       }
     }
     return { exercises, totalSets, reps, volume };
-  }, [sets, workout]);
+  }, [sets, activeWorkout]);
 
   useEffect(() => {
-    getWorkout();
-  }, []);
-
-  useEffect(() => {
+    if (!activeWorkout) return;
     const fetchPrev = async () => {
-      const pSesh = await getPrevSesh(new Date().toISOString().split('T')[0] as string, workout.id);
+      const pSesh = await getPrevSesh(new Date().toISOString().split('T')[0] as string, activeWorkout.id);
       setPrevSesh(pSesh ?? nullSesh);
       
       if (pSesh) {
         const preFilled: Record<number, ExerciseSet[]> = {};
-        workout.exercises.forEach((exercise, i) => {
+        activeWorkout.exercises.forEach((exercise, i) => {
           const prevExerciseSets = pSesh.sets.filter(s => s.exerciseId === exercise.id);
           preFilled[i] = prevExerciseSets.map(set => ({
             exerciseId: exercise.id,
@@ -71,7 +65,10 @@ export default function Session() {
       }
     };
     fetchPrev();
-  }, [workout]);
+  }, [activeWorkout]);
+
+  if (isLoading) return null;
+  if (!activeWorkout) return null;
 
   const getPrevSet = (exerciseId: number, index: number): ExerciseSet | undefined => {
     const prevExerciseSets = prevSesh.sets.filter(s => s.exerciseId === exerciseId);
@@ -79,7 +76,7 @@ export default function Session() {
   }
 
   const addSet = () => {
-    const exercise = workout.exercises[currentIndex];
+    const exercise = activeWorkout.exercises[currentIndex];
     const newSet: ExerciseSet = {
       exerciseId: exercise.id,
       reps: 0,
@@ -113,7 +110,7 @@ export default function Session() {
   const translateX = useSharedValue(0);
 
   const goNext = () => {
-    if (currentIndex < workout.exercises.length) {
+    if (currentIndex < activeWorkout.exercises.length) {
       setCurrentIndex(i => i + 1);
       translateX.value = withSequence(
         withTiming(400, { duration: 0 }),
@@ -133,16 +130,16 @@ export default function Session() {
   };
 
   const endSession = async () => {
-    let eSets: ExerciseSet[] = workout.exercises.flatMap((_, i) => sets[i] ?? []);
+    let eSets: ExerciseSet[] = activeWorkout.exercises.flatMap((_, i) => sets[i] ?? []);
     const mappedNotes: Record<number, string> = {};
-    workout.exercises.forEach((exercise, i) => {
+    activeWorkout.exercises.forEach((exercise, i) => {
       if (exNotes[i]) mappedNotes[exercise.id] = exNotes[i];
     });
     
     const s: Session = {
       id: Date.now(),
       date: new Date().toISOString(),
-      workout: workout,
+      workout: activeWorkout,
       sets: eSets,
       exerciseNotes: mappedNotes,
     }
@@ -165,6 +162,7 @@ export default function Session() {
     }
 
     if (stats.reps > 0) {
+      clearSession();
       router.push({
         pathname: '/home/summary',
         params: {
@@ -181,15 +179,15 @@ export default function Session() {
 
   return (<>
     <Stack.Screen options={{ headerShown: false }} />
-    {workout.exercises.length > 0 && (
+    {activeWorkout.exercises.length > 0 && (
       <SafeAreaView style={PageTheme.pageContainer}>
         <View style={PageTheme.workoutHeader}>
-          <Text style={PageTheme.workoutHeaderText}>{workout.name}</Text>
+          <Text style={PageTheme.workoutHeaderText}>{activeWorkout.name}</Text>
         </View>
-        {currentIndex < workout.exercises.length ? (
+        {currentIndex < activeWorkout.exercises.length ? (
         <>
         <View style={PageTheme.exerciseHeader}>
-          <Text style={PageTheme.exerciseHeaderText}>{workout.exercises[currentIndex].name}</Text>
+          <Text style={PageTheme.exerciseHeaderText}>{activeWorkout.exercises[currentIndex].name}</Text>
         </View>
 
         <View style={PageTheme.setInputFieldContainer}>
@@ -199,9 +197,9 @@ export default function Session() {
             extraData={prevSesh}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item, index }) => {
-              const setNumber = Math.floor(index / (workout.exercises[currentIndex].unilateral ? 2 : 1)) + 1;
+              const setNumber = Math.floor(index / (activeWorkout.exercises[currentIndex].unilateral ? 2 : 1)) + 1;
               const label = item.side ? `Set ${item.side}${setNumber}` : `Set ${setNumber}`;
-              const prevSet = getPrevSet(workout.exercises[currentIndex].id, index);
+              const prevSet = getPrevSet(activeWorkout.exercises[currentIndex].id, index);
               return (<>
                 <View style={PageTheme.setInputRow}>
                   <Text style={PageTheme.setLabel}>{label}</Text>
@@ -286,7 +284,7 @@ export default function Session() {
                   <TextInput
                     style={PageTheme.setNoteInput}
                     placeholder={prevSet?.setNote ?? "Set Note"}
-                    value={sets[currentIndex]?.[index]?.setNote ?? sets[currentIndex][index].setNote}
+                    value={sets[currentIndex]?.[index]?.setNote ?? ''}
                     onChangeText={(val) => updateSet(index, 'setNote', val)}
                   />
                 </View></>
@@ -307,6 +305,7 @@ export default function Session() {
                 placeholder={prevSesh.exerciseNotes?.[currentIndex] ?? "Exercise Note"}
                 value={exNotes[currentIndex] ?? ''}
                 onChangeText={(val) => setExNotes(prev => ({...prev, [currentIndex]: val}))}
+                multiline={true}
               />
               <TouchableOpacity style={PageTheme.mainButton} onPress={addSet}>
                 <Text style={PageTheme.mainButtonText}>Add Set</Text>

@@ -187,7 +187,9 @@ export default StyleSheet.create({
 		borderWidth: 2,
 	},
 	setNoteInput: {
-		width: "100%",
+		width: "90%",
+		marginLeft: "5%",
+		marginVertical: "2%",
 		backgroundColor: Colours.white1,
 		borderColor: Colours.white0,
 		borderWidth: 2,

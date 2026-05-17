@@ -1,5 +1,6 @@
 import React  from 'react';
 import {
+    Alert,
   Text,
   TouchableOpacity,
 } from 'react-native';
@@ -11,9 +12,11 @@ import { Paths, File, Directory } from 'expo-file-system';
 import DraggableFlatList, { RenderItemParams, ScaleDecorator } from 'react-native-draggable-flatlist';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { router, useFocusEffect } from 'expo-router';
+import { useSessionStore } from '@/store/sessionStore';
 
 export default function Workouts() {
   const [workouts, setWorkouts ] = useState<Workout[]>([]);
+  const { activeWorkout, setActiveWorkout, clearSession } = useSessionStore();
 
   const getWorkouts = async () => {
       const directory = new Directory(Paths.document, 'data');
@@ -28,6 +31,19 @@ export default function Workouts() {
       }
   };
 
+  useFocusEffect(useCallback(() => {
+    if (activeWorkout) {
+      Alert.alert(
+        'Resume Session',
+        `You have  an unfinished session for ${activeWorkout.name}. Resume?`,
+        [
+          { text: 'Discard', onPress: clearSession },
+          { text: 'Resume', onPress: () => router.replace({ pathname: '/home/session', params: { wId: activeWorkout.id } }) }
+        ]
+      );
+    }
+  }, [activeWorkout]));
+
   useFocusEffect(
     useCallback(() => {
       getWorkouts();
@@ -41,6 +57,7 @@ export default function Workouts() {
           style={PageTheme.container}
           key={item.id}
           onPress={() => {
+            setActiveWorkout(item);
             router.replace({
               pathname: '/home/session',
               params: {
