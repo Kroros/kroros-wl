@@ -16,7 +16,6 @@ interface SessionStore {
 }
 
 export const useSessionStore = create<SessionStore>()(
-	persist(
 		(set) => ({
 			activeWorkout: null,
 			sets: {},
@@ -27,10 +26,5 @@ export const useSessionStore = create<SessionStore>()(
 			setExNotes:(notes: Record<number, string> | ((prev: Record<number, string>) => Record<number, string>)) => set(state => ({ exNotes: typeof notes === 'function' ? notes(state.exNotes) : notes })), 
 			setCurrentIndex:(index: number | ((prev: number) => number)) => set(state => ({ currentIndex: typeof index === 'function' ? index(state.currentIndex) : index })), 
 			clearSession: () => set({ activeWorkout: null, sets: {}, exNotes: {}, currentIndex: 0}),
-		}),
-		{
-			name: 'active-session',
-			storage: createJSONStorage(() => AsyncStorage),
-		}
-	)
+		})
 );
